@@ -1,0 +1,37 @@
+﻿<p>Blazor Map:</p>
+
+<MapView Style="height:500px; width:100%;" OnLayerViewCreate="OnLayerViewCreate">
+    <WebMap>
+        <PortalItem PortalItemId="70b726074af04a7e9839d8a07f64c039" />
+    </WebMap>
+    <ExpandWidget Expanded="true" Position="OverlayPosition.TopRight">
+        <BookmarksWidget OnBookmarkSelect="OnBookmarkClick"
+                         DragEnabled="true">
+            <BookmarksVisibleElements EditBookmarkButton="true"
+                                      AddBookmarkButton="true" />
+        </BookmarksWidget>
+    </ExpandWidget>
+</MapView>
+
+@code {
+
+    private void OnLayerViewCreate(LayerViewCreateEvent evt)
+    {
+        if (evt.Layer is not FeatureLayer) return;
+        _layerView = evt.LayerView as FeatureLayerView;
+    }
+
+    private void OnBookmarkClick(BookmarkSelectEvent eventArgs)
+    {
+        if (_layerView is null) return;
+
+        var hurricaneName = eventArgs.Bookmark.Name;
+
+        var featureEffect = new FeatureEffect([new Effect("grayscale(100%) opacity(30%)")],
+            null, new FeatureFilter(where: $"Name = '{hurricaneName!.ToUpper()}'"));
+        _ = _layerView.SetFeatureEffect(featureEffect);
+    }
+
+    private FeatureLayerView? _layerView;
+}
+
